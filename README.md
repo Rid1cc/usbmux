@@ -1,2 +1,2 @@
-# MuxConnectorAPI <<WIP>>
+# MuxConnectorAPI {WIP}
 Bridge between unreadable code and friendly user interface
