@@ -28,5 +28,7 @@ def checkMuxInf(port_name: str):
 
 
 if __name__ == '__main__':
-    checkMuxInf('COM4')
     args = ARGPARSER.parse_args()
+    if args.inf:
+        name  = args.inf
+        checkMuxInf(name)
