@@ -32,3 +32,4 @@ if __name__ == '__main__':
     if args.inf:
         name  = args.inf
         checkMuxInf(name)
+    
