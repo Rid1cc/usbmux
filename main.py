@@ -48,16 +48,24 @@ def checkMuxReboot(port_name: str):
             print(err, f"happened at port {port_name}")
             print()
 
-
+def change_nameMuxRelay(port_name: str, relay_id: str, relay_name: str):
+    port_text_line = port_name+': '+'[ relay_id: '+relay_id+' ,relay_name: '+relay_name +' ]'
+    try:
+        plik_zapis = open('relayNames.txt', 'r+')
+    except:
+        plik_zapis = open('relayNames.txt', 'x')
+    plik_zapis.write(port_text_line)
+    plik_zapis.close()
 
 
 if __name__ == '__main__':
     args = ARGPARSER.parse_args()
-    if args.inf:
-        name  = args.inf
+    if args.info:
+        name = args.info
         checkMuxInf(name)
     elif args.reboot:
         name = args.reboot
         checkMuxReboot(name)
     elif args.relayname:
         relayname = args.relayname
+        change_nameMuxRelay(relayname[0], relayname[1], relayname[2])
