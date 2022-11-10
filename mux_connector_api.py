@@ -166,5 +166,3 @@ def get_name(port_name: str):
             print(err, f"happened at port {port_name}")
             print()
             return 'error'
-
-
