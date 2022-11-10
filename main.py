@@ -88,11 +88,35 @@ def change_muxName(port_name:str, mux_name:str):
             print(err, f"happened at port {port_name}")
             print()
 
+def switchRelay(port_name:str, relay_id:str, relay_state:str):
+    with serial.Serial(
+            port_name,
+            baudrate=115200,
+            timeout=1,
+            stopbits=serial.STOPBITS_ONE,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE
+    ) as ser:
+        try:
+            ser.reset_input_buffer()
+            ser.reset_output_buffer()
+            power =f'pwr,{relay_id},{relay_state}\n'
+            ser.write(bytes(power, encoding='utf-8'))
+            sleep(1)
+            data = ser.read(ser.in_waiting)  # read all input buffer
+            lines = data.decode('UTF-8').split('\r\n')  # decode bytes data into string and split lines
+            for line in lines:
+                print(line)
+            print("OPERATION SUCCESSFUL")
+
+        except Exception as err:
+            print(err, f"happened at port {port_name}")
+            print()
+
 
 
 if __name__ == '__main__':
     #checkMuxInf('COM4')
     #checkMuxReboot('COM4')
-    change_muxName('COM4', 'essa')
-
-
+    #change_muxName('COM4', 'essa')
+    switchRelay('COM4','1','1')
