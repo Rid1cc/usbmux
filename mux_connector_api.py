@@ -6,7 +6,6 @@ from enum import Enum
 
 
 class off_on(Enum):
-
     """Enum for off and on
 
     Args:
@@ -17,7 +16,6 @@ class off_on(Enum):
 
 
 def check_mux_inf(port_name: str):
-
     """Returns info message
 
     Args:
@@ -52,7 +50,6 @@ def check_mux_inf(port_name: str):
 
 
 def mux_reboot(port_name: str):
-
     """Reboots MUX
 
     Args:
@@ -79,7 +76,6 @@ def mux_reboot(port_name: str):
 
 
 def change_mux_name(port_name: str, mux_name: str):
-
     """Changes MUX name
     Args:
         port_name (str): port name of port where MUX is connected
@@ -107,7 +103,6 @@ def change_mux_name(port_name: str, mux_name: str):
 
 
 def switch_relay(port_name: str, relay_id: str, relay_state: off_on):
-
     """Switches relay state(on/off)
 
     Args:
@@ -139,7 +134,6 @@ def switch_relay(port_name: str, relay_id: str, relay_state: off_on):
 
 
 def get_name(port_name: str):
-
     """Returns name of MUX
 
     Args:
@@ -174,9 +168,3 @@ def get_name(port_name: str):
             return 'error'
 
 
-if __name__ == '__main__':
-    change_mux_name('COM4', 'default')
-    switch_relay('COM4', '1', off_on.ON)
-    print(get_name('COM4'))
-    print(check_mux_inf('COM4'))
-    mux_reboot('COM4')
