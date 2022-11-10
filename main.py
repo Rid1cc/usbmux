@@ -1,6 +1,7 @@
-from CLI import ARGPARSER
 import serial.tools.list_ports
 from time import sleep
+
+
 
 def checkMuxInf(port_name: str):
     with serial.Serial(
@@ -48,24 +49,22 @@ def checkMuxReboot(port_name: str):
             print(err, f"happened at port {port_name}")
             print()
 
-def change_nameMuxRelay(port_name: str, relay_id: str, relay_name: str):
-    port_text_line = port_name+': '+'[ relay_id: '+relay_id+' ,relay_name: '+relay_name +' ]'
-    try:
-        plik_zapis = open('relayNames.txt', 'r+')
-    except:
-        plik_zapis = open('relayNames.txt', 'x')
-    plik_zapis.write(port_text_line)
-    plik_zapis.close()
+# def change_nameMuxRelay(data_row: list):
+#     try:
+#         with open('data/relay_names.csv', 'rw') as csvfile:
+#             write = csv.writer(csvfile)
+#             read = csv.reader(csvfile)
+#             for lines in read:
+#                 if lines[0] == data_row[0] and lines[1] == data_row[1]:
+#                     pass
+#     except:
+#         with open('data/relay_names.csv', 'x') as csvfile:
+#             write = csv.writer(csvfile, fieldnames = ['Port Name', 'Relay ID', 'Relay Name'])
+#             write.writeheader()
+#             write.writerow(data_row)
+
 
 
 if __name__ == '__main__':
-    args = ARGPARSER.parse_args()
-    if args.info:
-        name = args.info
-        checkMuxInf(name)
-    elif args.reboot:
-        name = args.reboot
-        checkMuxReboot(name)
-    elif args.relayname:
-        relayname = args.relayname
-        change_nameMuxRelay(relayname[0], relayname[1], relayname[2])
+    checkMuxInf(name)
+    checkMuxReboot(name)
