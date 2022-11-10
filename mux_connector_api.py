@@ -22,7 +22,7 @@ def check_mux_inf(port_name: str):
         port_name (str): port name of port where MUX is connected
 
     Returns:
-        list: returns info message
+        lines (List[str]): returns info message
     """
     with serial.Serial(
             port_name,
@@ -46,7 +46,7 @@ def check_mux_inf(port_name: str):
         except Exception as err:
             print(err, f"happened at port {port_name}")
             print()
-            return []
+            return None
 
 
 def mux_reboot(port_name: str):
@@ -140,7 +140,7 @@ def get_name(port_name: str):
         port_name (str): port name of port where MUX is connected
 
     Returns:
-        str: returns name of MUX
+        name (str): returns name of MUX
     """
     with serial.Serial(
             port_name,
@@ -161,8 +161,8 @@ def get_name(port_name: str):
             if line[0:5] == "Name:":
                 return line[6:]
             else:
-                return 'no_name'
+                return None
         except Exception as err:
             print(err, f"happened at port {port_name}")
             print()
-            return 'error'
+            return None
