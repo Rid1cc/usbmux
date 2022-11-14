@@ -13,12 +13,14 @@ SerialCmdHandler::SerialCmdHandler(Commander &cmdr)
     : CommandHandler(SERIAL_CMD_HANDLER_DELIM, SERIAL_CMD_HANDLER_TERM1, SERIAL_CMD_HANDLER_TERM2, SERIAL_CMD_HANDLER_TERM3, SERIAL_CMD_HANDLER_TERM4, SERIAL_CMD_HANDLER_TERM5), m_cmdr(cmdr)
 {
     // Setup callbacks for SerialCommand commands
+    cmd_h = cmdr;
     setCommands();
     for (auto &cmd : m_commands)
     {
         addCommand(cmd.first.c_str(), cmd.second);
     }
     setDefaultHandler(std::bind(&SerialCmdHandler::processCmdUnrecognized, this));
+    addCommand("st", std::bind(&SerialCmdHandler::processRelayState, this));
     cmdMenu();
 }
 
@@ -42,6 +44,20 @@ void SerialCmdHandler::setCommands()
 }
 
 //------------------------------------------------------------------------------
+void SerialCmdHandler::processRelayState(void){
+    CmdSetPwrRelayMsg msg;
+
+    // Read RelayID
+    const uint8_t relayId = readIntArg();
+    if (argOk)
+    {
+        err("\033[1;31m Wrong relay ID! \033[1;39m");
+        return;
+    }
+    msg.relayId = relayId;
+    inf("PowerRelay[id:%d] state is SET to: %s\r\n", cmd_h.m_cmdHandler.m_pwrRelays(relayId).state());
+    return;
+}
 void SerialCmdHandler::cmdMenu(void)
 {
     err("\033[1;36m	>>>>>>>>>>>>>>> USBMUX(POWER-RELAYS) by luk6xff (2022) <<<<<<<<<<<<<<< \033[1;39m	");

@@ -13,12 +13,15 @@ using SerialCmdMap = std::map<String, std::function<void(void)>>;
 class SerialCmdHandler : public CommandHandler
 {
 public:
+    Commander cmd_h;
+    
     explicit SerialCmdHandler(Commander &cmdr);
 
     void process();
     void AddBuforMemory();
 
 private:
+    void processRelayState();
     void setCommands();
     void cmdMenu();
     void bufScroll();
@@ -30,6 +33,7 @@ private:
     void processCmdSetName();
     void processCmdReset();
     void processCmdUnrecognized();
+    
 
 private:
     Commander &m_cmdr;
