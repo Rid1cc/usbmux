@@ -1,8 +1,7 @@
-import serial.tools.list_ports
-
-
-from time import sleep
 from enum import Enum
+from time import sleep
+
+import serial.tools.list_ports
 
 
 class off_on(Enum):
@@ -15,147 +14,109 @@ class off_on(Enum):
     OFF = '0'
 
 
-def check_mux_inf(port_name: str):
-    """Returns info message
+class Handler:
+    def __init__(self, port_name: str):
+        """Constructor of class
 
-    Args:
-        port_name (str): port name of port where MUX is connected
-
-    Returns:
-        lines (List[str]): returns info message
-    """
-    with serial.Serial(
+        Args:
+            port_name (str): port name of port connected with mux
+        """
+        self.port_name = port_name
+        self.ser = serial.Serial(
             port_name,
             baudrate=115200,
             timeout=1,
             stopbits=serial.STOPBITS_ONE,
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE
-    ) as ser:
+        )
+
+    def check_mux_inf(self):
+        """Returns info message
+
+        Returns:
+            lines (List[str]): returns info message
+        """
         try:
-            ser.reset_input_buffer()
-            ser.reset_output_buffer()
-            ser.write(b'inf\n')
+            self.ser.reset_input_buffer()
+            self.ser.reset_output_buffer()
+            self.ser.write(b'inf\n')
             sleep(1)
             # read all input buffer
-            data = ser.read(ser.in_waiting)
+            data = self.ser.read(self.ser.in_waiting)
             # decode bytes data into string and split lines
             lines = data.decode('UTF-8').split('\r\n')
             return lines
 
         except Exception as err:
-            print(err, f"happened at port {port_name}")
+            print(err, f"happened at port {self.port_name}")
             print()
             return None
 
-
-def mux_reboot(port_name: str):
-    """Reboots MUX
-
-    Args:
-        port_name (str): port name of port where MUX is connected
-    """
-    with serial.Serial(
-            port_name,
-            baudrate=115200,
-            timeout=1,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-            parity=serial.PARITY_NONE
-    ) as ser:
+    def mux_reboot(self):
+        """Reboots MUX
+        """
         try:
-            ser.reset_input_buffer()
-            ser.reset_output_buffer()
-            ser.write(b'r\n')
+            self.ser.reset_input_buffer()
+            self.ser.reset_output_buffer()
+            self.ser.write(b'r\n')
             sleep(1)
             print("REBOOTED")
-
         except Exception as err:
-            print(err, f"happened at port {port_name}")
+            print(err, f"happened at port {self.port_name}")
             print()
 
+    def change_mux_name(self, mux_name: str):
+        """Changes MUX name
 
-def change_mux_name(port_name: str, mux_name: str):
-    """Changes MUX name
-    Args:
-        port_name (str): port name of port where MUX is connected
-        mux_name (str): new name of MUX
-    """
-    with serial.Serial(
-            port_name,
-            baudrate=115200,
-            timeout=1,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-            parity=serial.PARITY_NONE
-    ) as ser:
+        Args:
+            mux_name (str): new name of MUX
+        """
         try:
-            ser.reset_input_buffer()
-            ser.reset_output_buffer()
+            self.ser.reset_input_buffer()
+            self.ser.reset_output_buffer()
             test = f'n,{mux_name}\n'
-            ser.write(bytes(test, encoding='utf-8'))
+            self.ser.write(bytes(test, encoding='utf-8'))
             sleep(1)
             print("RENAMED")
 
         except Exception as err:
-            print(err, f"happened at port {port_name}")
+            print(err, f"happened at port {self.port_name}")
             print()
 
+    def switch_relay(self, relay_id: int, relay_state: off_on):
+        """Switches relay state(on/off)
 
-def switch_relay(port_name: str, relay_id: str, relay_state: off_on):
-    """Switches relay state(on/off)
-
-    Args:
-        port_name (str): port name of port where MUX is connected
-        relay_id (str): id of relay
-        relay_state (off_on): relay state in enum off_on
-    """
-    with serial.Serial(
-            port_name,
-            baudrate=115200,
-            timeout=1,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-            parity=serial.PARITY_NONE
-    ) as ser:
+        Args:
+            relay_id (int): id of relay
+            relay_state (off_on): relay state in enum off_on
+        """
         try:
-            ser.reset_input_buffer()
-            ser.reset_output_buffer()
+            self.ser.reset_input_buffer()
+            self.ser.reset_output_buffer()
             power = f'pwr,{relay_id},{relay_state.value}\n'
-            ser.write(bytes(power, encoding='utf-8'))
+            self.ser.write(bytes(power, encoding='utf-8'))
             sleep(1)
             if relay_state == off_on.ON:
                 print("Relay ON")
             if relay_state == off_on.OFF:
                 print("Relay OFF")
         except Exception as err:
-            print(err, f"happened at port {port_name}")
+            print(err, f"happened at port {self.port_name}")
             print()
 
+    def get_name(self):
+        """Returns name of MUX
 
-def get_name(port_name: str):
-    """Returns name of MUX
-
-    Args:
-        port_name (str): port name of port where MUX is connected
-
-    Returns:
-        name (str): returns name of MUX
-    """
-    with serial.Serial(
-            port_name,
-            baudrate=115200,
-            timeout=1,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-            parity=serial.PARITY_NONE
-    ) as ser:
+        Returns:
+            name (str): returns name of MUX
+        """
         try:
-            ser.reset_input_buffer()
-            ser.reset_output_buffer()
-            ser.write(b'inf\n')
+            self.ser.reset_input_buffer()
+            self.ser.reset_output_buffer()
+            self.ser.write(b'inf\n')
             sleep(1)
-            data = ser.read(ser.in_waiting)  # read all input buffer
+            data = self.ser.read(self.ser.in_waiting)  # read all input buffer
             lines = data.decode('UTF-8').split('\r\n')
             line = lines[3]
             if line[0:5] == "Name:":
@@ -163,6 +124,6 @@ def get_name(port_name: str):
             else:
                 return None
         except Exception as err:
-            print(err, f"happened at port {port_name}")
+            print(err, f"happened at port {self.port_name}")
             print()
             return None
