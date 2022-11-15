@@ -30,19 +30,22 @@ class Handler:
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE
         )
+
     def check_relay_state(self, relay_id):
         try:
             self.ser.reset_input_buffer()
             self.ser.reset_output_buffer()
             state = f'st,{relay_id}\n'
             self.ser.write(bytes(state, encoding='utf-8'))
+            sleep(1)
             data = self.ser.read(self.ser.in_waiting)
+
             lines = data.decode('UTF-8').split('\r\n')
             line = lines[2]
-            if (line = "PowerRelay{relay_id} state SET to: RELAY_ON"):
+            if line == "PowerRelay{relay_id} state SET to: RELAY_ON":
                 print(line)
                 return off_on.ON
-            else
+            else:
                 print(line)
                 return off_on.OFF
 
@@ -51,6 +54,7 @@ class Handler:
             print(err, f"happened at port {self.port_name}")
             print()
             return None
+
     def check_mux_inf(self):
         """Returns info message
 
