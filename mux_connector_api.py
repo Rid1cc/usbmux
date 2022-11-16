@@ -3,6 +3,8 @@ from time import sleep
 
 import serial.tools.list_ports
 
+import mux_finder_api
+
 
 class off_on(Enum):
     """Enum for off and on
@@ -14,24 +16,60 @@ class off_on(Enum):
     OFF = '0'
 
 
-class Handler:
-    def __init__(self, port_name: str):
+class MuxConnectorApi:
+    def __del__(self):
+        print('MuxConnectorApi deleted')
+
+    def __init__(self, mux_name: str = None, port_name: str = None):
         """Constructor of class
 
         Args:
+            mux_name (str): name of mux we are connecting with
             port_name (str): port name of port connected with mux
         """
-        self.port_name = port_name
-        self.ser = serial.Serial(
-            port_name,
-            baudrate=115200,
-            timeout=1,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-            parity=serial.PARITY_NONE
-        )
+        mux_list = mux_finder_api.find_all_muxes()
+        if mux_name == None and port_name == None:
+            if len(mux_list) > 0:
+                self.port_name, self.mux_name = mux_list[0]
+            else:
+                self.port_name = None
+                self.mux_name = None
+        elif mux_name == None:
+            for p_name, m_name in mux_list:
+                if p_name == port_name:
+                    mux_name = m_name
+            if mux_name != None:
+                self.port_name = port_name
+                self.mux_name = mux_name
+            else:
+                self.port_name = None
+                self.mux_name = None
+        else:
+            self.port_name = mux_finder_api.find_mux_with_name(mux_name)
+            self.mux_name = mux_name
 
-    def check_relay_state(self, relay_id):
+        if self.port_name != None:
+            self.ser = serial.Serial(
+                self.port_name,
+                baudrate=115200,
+                timeout=1,
+                stopbits=serial.STOPBITS_ONE,
+                bytesize=serial.EIGHTBITS,
+                parity=serial.PARITY_NONE
+            )
+        else:
+            print('Could not create a mux handler')
+            del self
+
+    def check_relay_state(self, relay_id: int):
+        """Checks state of relay
+
+        Args:
+            relay_id (int): ID of the relay
+
+        Returns:
+            state (off_on): enum of relay state: off_on.ON/off_on.OFF
+        """
         try:
             self.ser.reset_input_buffer()
             self.ser.reset_output_buffer()
@@ -151,3 +189,4 @@ class Handler:
             print(err, f"happened at port {self.port_name}")
             print()
             return None
+
