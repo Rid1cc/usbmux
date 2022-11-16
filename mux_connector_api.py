@@ -77,8 +77,7 @@ class MuxConnectorApi:
             lines = data.decode('UTF-8').split('\r\n')
 
             for line in lines:
-                print(line)
-                if line == f"PwrRelay (id:{relay_id}) state SET to: RELAY_ON":
+                if line == f"PowerRelay (id:{relay_id}) state SET to: RELAY_ON":
                     print(f"PowerRelay (id:{relay_id}) state SET to: RELAY_ON")
                     return off_on.ON
             print(f"PowerRelay (id:{relay_id}) state SET to: RELAY_OFF")
@@ -184,3 +183,6 @@ class MuxConnectorApi:
             print()
             return None
 
+handler = MuxConnectorApi()
+handler.switch_relay(0, off_on.ON)
+handler.check_relay_state(0)
