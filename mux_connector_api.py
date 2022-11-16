@@ -182,7 +182,3 @@ class MuxConnectorApi:
             print(err, f"happened at port {self.port_name}")
             print()
             return None
-
-handler = MuxConnectorApi()
-handler.switch_relay(0, off_on.ON)
-handler.check_relay_state(0)
