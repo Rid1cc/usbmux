@@ -17,10 +17,12 @@ class off_on(Enum):
 
 
 class MuxConnectorApi:
-    def __del__(self):
-        print('MuxConnectorApi deleted')
+    # def __del__(self):
+    #     """Deconstructor of object - prints that object has been delated
+    #     """
+    #     print('MuxConnectorApi deleted')
 
-    def __init__(self, mux_name: str = None, port_name: str = None):
+    def __init__(self, port_name: str = None):
         """Constructor of class
 
         Args:
@@ -28,27 +30,16 @@ class MuxConnectorApi:
             port_name (str): port name of port connected with mux
         """
         mux_list = mux_finder_api.find_all_muxes()
-        if mux_name == None and port_name == None:
+        if port_name is None:
             if len(mux_list) > 0:
                 self.port_name, self.mux_name = mux_list[0]
             else:
                 self.port_name = None
-                self.mux_name = None
-        elif mux_name == None:
-            for p_name, m_name in mux_list:
-                if p_name == port_name:
-                    mux_name = m_name
-            if mux_name != None:
-                self.port_name = port_name
-                self.mux_name = mux_name
-            else:
-                self.port_name = None
-                self.mux_name = None
         else:
-            self.port_name = mux_finder_api.find_mux_with_name(mux_name)
-            self.mux_name = mux_name
+            self.port_name = port_name
 
-        if self.port_name != None:
+        print(self.port_name)
+        if self.port_name is not None:
             self.ser = serial.Serial(
                 self.port_name,
                 baudrate=115200,
@@ -79,21 +70,19 @@ class MuxConnectorApi:
             data = self.ser.read(self.ser.in_waiting)
 
             lines = data.decode('UTF-8').split('\r\n')
-            line = lines[2]
-            if line == "PowerRelay{relay_id} state SET to: RELAY_ON":
-                print(line)
-                return off_on.ON
-            else:
-                print(line)
-                return off_on.OFF
 
-            return lines
+            for line in lines:
+                if line == "PowerRelay{relay_id} state SET to: RELAY_ON":
+                    print(line)
+                    return off_on.ON
+            print(line)
+            return off_on.OFF
         except Exception as err:
             print(err, f"happened at port {self.port_name}")
             print()
             return None
 
-    def check_mux_inf(self):
+    def show_inf(self):
         """Returns info message
 
         Returns:
@@ -115,7 +104,7 @@ class MuxConnectorApi:
             print()
             return None
 
-    def mux_reboot(self):
+    def reboot(self):
         """Reboots MUX
         """
         try:
@@ -128,7 +117,7 @@ class MuxConnectorApi:
             print(err, f"happened at port {self.port_name}")
             print()
 
-    def change_mux_name(self, mux_name: str):
+    def change_name(self, mux_name: str):
         """Changes MUX name
 
         Args:
@@ -180,13 +169,14 @@ class MuxConnectorApi:
             sleep(1)
             data = self.ser.read(self.ser.in_waiting)  # read all input buffer
             lines = data.decode('UTF-8').split('\r\n')
-            line = lines[3]
-            if line[0:5] == "Name:":
-                return line[6:]
-            else:
-                return None
+            for line in lines:
+                if line[0:5] == "Name:":
+                    return line[6:]
+            return None
         except Exception as err:
             print(err, f"happened at port {self.port_name}")
             print()
             return None
 
+handle = MuxConnectorApi(port_name='COM4')
+print(handle.show_inf())

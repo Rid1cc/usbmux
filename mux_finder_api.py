@@ -23,8 +23,10 @@ def check_if_mux(port_name: str, found_mux_queue: queue.Queue):
             ser.reset_output_buffer()
             ser.write(b'inf\n')
             sleep(1)
-            data = ser.read(ser.in_waiting)  # read all input buffer
-            lines = data.decode('UTF-8').split('\r\n')  # decode bytes data into string and split lines
+            # read all input buffer
+            data = ser.read(ser.in_waiting)
+            # decode bytes data into string and split lines
+            lines = data.decode('UTF-8').split('\r\n')
 
             for i, line in enumerate(lines):
                 starting_line = 'Received Command: inf'
@@ -51,14 +53,16 @@ def find_all_muxes() -> List[Tuple[str, str]]:
     Format of an element in list is: (port_name, mux_name)
     """
     ports = serial.tools.list_ports.comports()
-    found_mux_queue: queue.Queue[Tuple[str, str]] = queue.Queue()  # list of tuples in format (port, mux_name)
+    # list of tuples in format (port, mux_name)
+    found_mux_queue: queue.Queue[Tuple[str, str]] = queue.Queue()
 
     # max_workers in ThreadPoolExecutor must be greater than 0.
     if len(ports) == 0:
         print("No usb-serial devices was found!")
     else:
         with concurrent.futures.ThreadPoolExecutor(max_workers=len(ports)) as executor:
-            futures = map(lambda port: executor.submit(check_if_mux, port[0], found_mux_queue), ports)
+            futures = map(lambda port: executor.submit(
+                check_if_mux, port[0], found_mux_queue), ports)
             for future in concurrent.futures.as_completed(futures):
                 future.result()
     return list(found_mux_queue.queue)
