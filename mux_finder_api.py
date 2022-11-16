@@ -1,8 +1,10 @@
+import concurrent.futures
+import re
+
 import serial.tools.list_ports
 import queue
 from time import sleep
 from typing import Tuple, List
-import concurrent.futures
 
 
 def check_if_mux(port_name: str, found_mux_queue: queue.Queue):
@@ -30,8 +32,10 @@ def check_if_mux(port_name: str, found_mux_queue: queue.Queue):
 
             for i, line in enumerate(lines):
                 starting_line = 'Received Command: inf'
-                # first line should start with proper line - there could be artifacts like "inf", so I check with regex:
-                if i == 0 and (len(line) < len(starting_line) or len(re.findall(starting_line, line)) != 1):
+                # first line should start with proper line
+                # there could be artifacts like "inf", so I check with regex:
+                if i == 0 and (len(line) < len(starting_line) or
+                               len(re.findall(starting_line, line)) != 1):
                     break
                 else:
                     text_elements = line.split()

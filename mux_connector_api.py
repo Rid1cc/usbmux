@@ -17,12 +17,7 @@ class off_on(Enum):
 
 
 class MuxConnectorApi:
-    # def __del__(self):
-    #     """Deconstructor of object - prints that object has been delated
-    #     """
-    #     print('MuxConnectorApi deleted')
-
-    def __init__(self, port_name: str = None):
+    def __init__(self, mux_name: str = None, port_name: str = None):
         """Constructor of class
 
         Args:
@@ -30,15 +25,26 @@ class MuxConnectorApi:
             port_name (str): port name of port connected with mux
         """
         mux_list = mux_finder_api.find_all_muxes()
-        if port_name is None:
+        if mux_name is None and port_name is None:
             if len(mux_list) > 0:
                 self.port_name, self.mux_name = mux_list[0]
             else:
                 self.port_name = None
+                self.mux_name = None
+        elif mux_name is None:
+            for p_name, m_name in mux_list:
+                if p_name == port_name:
+                    mux_name = m_name
+            if mux_name is not None:
+                self.port_name = port_name
+                self.mux_name = mux_name
+            else:
+                self.port_name = None
+                self.mux_name = None
         else:
-            self.port_name = port_name
+            self.port_name = mux_finder_api.find_mux_with_name(mux_name)
+            self.mux_name = mux_name
 
-        print(self.port_name)
         if self.port_name is not None:
             self.ser = serial.Serial(
                 self.port_name,
@@ -50,7 +56,6 @@ class MuxConnectorApi:
             )
         else:
             print('Could not create a mux handler')
-            del self
 
     def check_relay_state(self, relay_id: int):
         """Checks state of relay
@@ -177,6 +182,3 @@ class MuxConnectorApi:
             print(err, f"happened at port {self.port_name}")
             print()
             return None
-
-handle = MuxConnectorApi(port_name='COM4')
-print(handle.show_inf())
