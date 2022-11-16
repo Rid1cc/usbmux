@@ -2,8 +2,8 @@ from enum import Enum
 from time import sleep
 
 import serial.tools.list_ports
-
-import mux_finder_api
+# imports mux_finder methods
+from mux_finder_api import find_all_muxes, find_mux_with_name
 
 
 class off_on(Enum):
@@ -24,7 +24,7 @@ class MuxConnectorApi:
             mux_name (str): name of mux we are connecting with
             port_name (str): port name of port connected with mux
         """
-        mux_list = mux_finder_api.find_all_muxes()
+        mux_list = find_all_muxes()
         if mux_name is None and port_name is None:
             if len(mux_list) > 0:
                 self.port_name, self.mux_name = mux_list[0]
@@ -42,7 +42,7 @@ class MuxConnectorApi:
                 self.port_name = None
                 self.mux_name = None
         else:
-            self.port_name = mux_finder_api.find_mux_with_name(mux_name)
+            self.port_name = find_mux_with_name(mux_name)
             self.mux_name = mux_name
 
         if self.port_name is not None:
@@ -77,10 +77,11 @@ class MuxConnectorApi:
             lines = data.decode('UTF-8').split('\r\n')
 
             for line in lines:
-                if line == "PowerRelay{relay_id} state SET to: RELAY_ON":
-                    print(line)
+                print(line)
+                if line == f"PwrRelay (id:{relay_id}) state SET to: RELAY_ON":
+                    print(f"PowerRelay (id:{relay_id}) state SET to: RELAY_ON")
                     return off_on.ON
-            print(line)
+            print(f"PowerRelay (id:{relay_id}) state SET to: RELAY_OFF")
             return off_on.OFF
         except Exception as err:
             print(err, f"happened at port {self.port_name}")
@@ -182,3 +183,4 @@ class MuxConnectorApi:
             print(err, f"happened at port {self.port_name}")
             print()
             return None
+
